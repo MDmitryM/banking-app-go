@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/MDmitryM/banking-app-go/pkg/handler"
+	"github.com/MDmitryM/banking-app-go/pkg/repository"
+	"github.com/MDmitryM/banking-app-go/pkg/service"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -20,8 +22,27 @@ func main() {
 	if err := initConfig(); err != nil {
 		logrus.Fatalf("Can't init configs, %s", err.Error())
 	}
+	mongodbUri := "mongodb://" + viper.GetString("dev_db.username") + ":" +
+		viper.GetString("dev_db.password") + "@" +
+		viper.GetString("dev_db.host") + ":" +
+		viper.GetString("dev_db.port")
 
-	hander := handler.NewHandler()
+	mongoConfig := repository.MongoConfig{
+		URI:      mongodbUri,
+		Database: viper.GetString("dev_db.database"),
+		Timeout:  viper.GetDuration("dev_db.timeout"),
+	}
+
+	db, err := repository.NewMongoDB(mongoConfig)
+	if err != nil {
+		logrus.Fatalf("error while creating DB, err - %s", err.Error())
+	}
+	defer db.Close(context.Background())
+
+	repository := repository.NewRepository(db)
+	service := service.NewService(repository)
+
+	hander := handler.NewHandler(service)
 	echo := echo.New()
 	hander.SetupRouts(echo)
 

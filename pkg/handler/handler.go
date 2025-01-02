@@ -1,12 +1,18 @@
 package handler
 
-import "github.com/labstack/echo/v4"
+import (
+	"github.com/MDmitryM/banking-app-go/pkg/service"
+	"github.com/labstack/echo/v4"
+)
 
 type Handler struct {
+	service *service.Service
 }
 
-func NewHandler() *Handler {
-	return &Handler{}
+func NewHandler(service *service.Service) *Handler {
+	return &Handler{
+		service: service,
+	}
 }
 
 func (h *Handler) SetupRouts(echo *echo.Echo) {

@@ -2,6 +2,12 @@ port: "8080"
 
 #production db conf from docker-compose
 db:
-
 #db config for local development
 dev_db:
+  #name: "mongo_local" #container name
+  host: "localhost"
+  port: "27017"
+  username: "mongo"
+  password: "qwerty"
+  database: "budget_app"
+  timeout: 10s
