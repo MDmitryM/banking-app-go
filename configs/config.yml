@@ -1,0 +1,7 @@
+port: "8080"
+
+#production db conf from docker-compose
+db:
+
+#db config for local development
+dev_db:
