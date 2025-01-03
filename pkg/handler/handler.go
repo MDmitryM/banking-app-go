@@ -25,7 +25,7 @@ func (h *Handler) SetupRouts(echo *echo.Echo) {
 	auth.POST("/sign-up", h.signUp) // /auth/sign-up
 
 	//for /api/* user must be authorized with JWT
-	api := echo.Group("/api") // /api
+	api := echo.Group("/api", h.JWTMiddleware()) // /api
 
 	//Transactions
 	transactions := api.Group("/transactions")       // /api/transactions

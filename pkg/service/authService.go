@@ -7,7 +7,7 @@ import (
 	bankingApp "github.com/MDmitryM/banking-app-go"
 	"github.com/MDmitryM/banking-app-go/models"
 	"github.com/MDmitryM/banking-app-go/pkg/repository"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -15,8 +15,8 @@ type AuthService struct {
 	repo repository.Authorization
 }
 
-type jwtBankingClaims struct {
-	jwt.StandardClaims
+type JwtBankingClaims struct {
+	jwt.RegisteredClaims
 	UserId string `json:"user_id"`
 }
 
@@ -47,10 +47,10 @@ func (s *AuthService) GenerateToken(email, password string) (string, error) {
 		return "", err
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &jwtBankingClaims{
-		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 12).Unix(),
-			IssuedAt:  time.Now().Unix(),
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &JwtBankingClaims{
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 12)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 		id,
 	})
