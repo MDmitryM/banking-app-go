@@ -1,8 +1,13 @@
 package service
 
-import "github.com/MDmitryM/banking-app-go/pkg/repository"
+import (
+	bankingApp "github.com/MDmitryM/banking-app-go"
+	"github.com/MDmitryM/banking-app-go/pkg/repository"
+)
 
 type Authorization interface {
+	CreateUser(user bankingApp.User) (string, error)
+	GenerateToken(email, password string) (string, error)
 }
 
 type Transaction interface {
@@ -22,5 +27,7 @@ type Service struct {
 }
 
 func NewService(repo *repository.Repository) *Service {
-	return &Service{}
+	return &Service{
+		Authorization: NewAuthService(repo.Authorization),
+	}
 }

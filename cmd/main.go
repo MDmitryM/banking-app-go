@@ -11,6 +11,7 @@ import (
 	"github.com/MDmitryM/banking-app-go/pkg/handler"
 	"github.com/MDmitryM/banking-app-go/pkg/repository"
 	"github.com/MDmitryM/banking-app-go/pkg/service"
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -22,6 +23,11 @@ func main() {
 	if err := initConfig(); err != nil {
 		logrus.Fatalf("Can't init configs, %s", err.Error())
 	}
+
+	if err := godotenv.Load(); err != nil {
+		logrus.Fatalf("cant load .env file, err - %s", err.Error())
+	}
+
 	mongodbUri := "mongodb://" + viper.GetString("dev_db.username") + ":" +
 		viper.GetString("dev_db.password") + "@" +
 		viper.GetString("dev_db.host") + ":" +

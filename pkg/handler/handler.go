@@ -2,8 +2,11 @@ package handler
 
 import (
 	"github.com/MDmitryM/banking-app-go/pkg/service"
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
+
+var validate = validator.New(validator.WithRequiredStructEnabled())
 
 type Handler struct {
 	service *service.Service
