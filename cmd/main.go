@@ -29,7 +29,7 @@ func main() {
 	}
 
 	mongodbUri := "mongodb://" + viper.GetString("dev_db.username") + ":" +
-		viper.GetString("dev_db.password") + "@" +
+		os.Getenv("MONGO_PASSWORD") + "@" +
 		viper.GetString("dev_db.host") + ":" +
 		viper.GetString("dev_db.port")
 

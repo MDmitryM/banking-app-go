@@ -3,16 +3,36 @@ package handler
 import (
 	"net/http"
 
+	bankingApp "github.com/MDmitryM/banking-app-go"
 	"github.com/MDmitryM/banking-app-go/pkg/service"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
+type addTransactionResponce struct {
+	TransactionID string `json:"transaction_id"`
+}
+
 func (h *Handler) addTransaction(ctx echo.Context) error {
+	var transactionInput bankingApp.Transaction
+	if err := ctx.Bind(&transactionInput); err != nil {
+		return SendJSONError(ctx, http.StatusBadRequest, err.Error())
+	}
+
+	if err := validate.Struct(transactionInput); err != nil {
+		return SendJSONError(ctx, http.StatusBadRequest, err.Error())
+	}
+
 	claims := ctx.Get("user").(*jwt.Token).Claims.(*service.JwtBankingClaims)
 	userId := claims.UserId
-	return ctx.JSON(http.StatusOK, echo.Map{
-		"endpoint": "post /transactions " + userId,
+
+	transactionId, err := h.service.Transaction.CreateTransaction(userId, transactionInput)
+	if err != nil {
+		return SendJSONError(ctx, http.StatusInternalServerError, err.Error())
+	}
+
+	return ctx.JSON(http.StatusOK, addTransactionResponce{
+		TransactionID: transactionId,
 	})
 }
 

@@ -10,6 +10,7 @@ type Authorization interface {
 }
 
 type Transaction interface {
+	CreateTransaction(transaction models.TransactionModel) (string, error)
 }
 
 type Statistic interface {
@@ -28,5 +29,6 @@ type Repository struct {
 func NewRepository(db *MongoDB) *Repository {
 	return &Repository{
 		Authorization: NewAuthMongo(db),
+		Transaction:   NewTransactionMongo(db),
 	}
 }

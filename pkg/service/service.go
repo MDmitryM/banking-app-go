@@ -11,6 +11,7 @@ type Authorization interface {
 }
 
 type Transaction interface {
+	CreateTransaction(userId string, transactionInput bankingApp.Transaction) (string, error)
 }
 
 type Statistic interface {
@@ -29,5 +30,6 @@ type Service struct {
 func NewService(repo *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(repo.Authorization),
+		Transaction:   NewTransactionService(repo.Transaction),
 	}
 }
