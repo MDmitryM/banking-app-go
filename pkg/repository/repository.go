@@ -11,6 +11,7 @@ type Authorization interface {
 
 type Transaction interface {
 	CreateTransaction(transaction models.TransactionModel) (string, error)
+	DeleteTransaction(userID, transactionID string) error
 }
 
 type Statistic interface {

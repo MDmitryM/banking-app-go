@@ -1,9 +1,12 @@
 package service
 
 import (
+	"errors"
+
 	bankingApp "github.com/MDmitryM/banking-app-go"
 	"github.com/MDmitryM/banking-app-go/models"
 	"github.com/MDmitryM/banking-app-go/pkg/repository"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type TransactionService struct {
@@ -22,4 +25,16 @@ func (s *TransactionService) CreateTransaction(userID string, transactionInput b
 		return "", err
 	}
 	return s.repo.CreateTransaction(trModel)
+}
+
+func (s *TransactionService) DeleteTransaction(userID, transactionID string) error {
+	if _, err := primitive.ObjectIDFromHex(userID); err != nil {
+		return errors.New("invalid user id format")
+	}
+
+	if _, err := primitive.ObjectIDFromHex(transactionID); err != nil {
+		return errors.New("invalid transaction id format")
+	}
+
+	return s.repo.DeleteTransaction(userID, transactionID)
 }

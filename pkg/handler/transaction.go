@@ -53,9 +53,15 @@ func (h *Handler) updateTransaction(ctx echo.Context) error {
 }
 
 func (h *Handler) deleteTransaction(ctx echo.Context) error {
+	transactionID := ctx.Param("id")
+
 	claims := ctx.Get("user").(*jwt.Token).Claims.(*service.JwtBankingClaims)
-	userId := claims.UserId
-	return ctx.JSON(http.StatusOK, echo.Map{
-		"endpoint": "delete /transactions/id " + userId,
-	})
+	userID := claims.UserId
+
+	err := h.service.Transaction.DeleteTransaction(userID, transactionID)
+	if err != nil {
+		return SendJSONError(ctx, http.StatusInternalServerError, err.Error())
+	}
+
+	return ctx.NoContent(http.StatusOK)
 }
