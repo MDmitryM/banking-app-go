@@ -59,3 +59,23 @@ func (s *TransactionService) UpdateTransaction(userID, transactionID string, tra
 
 	return updatedTransactionModel.ToTransactionDTO(), nil
 }
+
+func (s *TransactionService) GetTransactions(userID string, page, pageSize int) ([]bankingApp.Transaction, error) {
+	offset := (page - 1) * pageSize
+	userObjID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	transactionsModels, err := s.repo.GetTransactions(userObjID, offset, pageSize)
+	if err != nil {
+		return nil, err
+	}
+
+	var transactionsDTO []bankingApp.Transaction
+	for _, t := range transactionsModels {
+		transactionsDTO = append(transactionsDTO, t.ToTransactionDTO())
+	}
+
+	return transactionsDTO, nil
+}

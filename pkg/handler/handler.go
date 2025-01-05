@@ -29,8 +29,8 @@ func (h *Handler) SetupRouts(echo *echo.Echo) {
 
 	//Transactions
 	transactions := api.Group("/transactions")       // /api/transactions
-	transactions.POST("/", h.addTransaction)         // add transaction
-	transactions.GET("/", h.getTransactions)         // get transactions list with pagination
+	transactions.POST("", h.addTransaction)          // add transaction
+	transactions.GET("", h.getTransactions)          // get transactions list with pagination
 	transactions.PUT("/:id", h.updateTransaction)    // /api/transactions/:id update transaction info
 	transactions.DELETE("/:id", h.deleteTransaction) // /api/transactions/:id delete transaction
 

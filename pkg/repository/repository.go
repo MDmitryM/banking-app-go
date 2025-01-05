@@ -15,6 +15,7 @@ type Transaction interface {
 	DeleteTransaction(userID, transactionID primitive.ObjectID) error
 	UpdateTransaction(transactionID primitive.ObjectID, updatedTransactionModel models.TransactionModel) (models.TransactionModel, error)
 	GetTransactionByID(transactioID primitive.ObjectID) (models.TransactionModel, error)
+	GetTransactions(userID primitive.ObjectID, offset, limit int) ([]models.TransactionModel, error)
 }
 
 type Statistic interface {

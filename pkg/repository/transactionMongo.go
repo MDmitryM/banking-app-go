@@ -101,3 +101,22 @@ func (r *TransactionMongo) UpdateTransaction(transactionObjID primitive.ObjectID
 	}
 	return updatedTransaction, nil
 }
+
+func (r *TransactionMongo) GetTransactions(userID primitive.ObjectID, offset, limit int) ([]models.TransactionModel, error) {
+	transactionCollection := r.db.database.Collection("transactions")
+
+	cursor, err := transactionCollection.Find(context.Background(),
+		bson.M{"user_id": userID},
+		options.Find().SetSkip(int64(offset)).SetLimit(int64(limit)))
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	var transactionModels []models.TransactionModel
+	if err := cursor.All(context.Background(), &transactionModels); err != nil {
+		return nil, err
+	}
+
+	return transactionModels, nil
+}

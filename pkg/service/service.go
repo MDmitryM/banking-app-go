@@ -14,6 +14,7 @@ type Transaction interface {
 	CreateTransaction(userID string, transactionInput bankingApp.Transaction) (string, error)
 	DeleteTransaction(userID, transactionID string) error
 	UpdateTransaction(userID, transactionID string, transactionInput bankingApp.Transaction) (bankingApp.Transaction, error)
+	GetTransactions(userID string, page, pageSize int) ([]bankingApp.Transaction, error)
 }
 
 type Statistic interface {
