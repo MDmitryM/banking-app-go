@@ -45,11 +45,26 @@ func (h *Handler) getTransactions(ctx echo.Context) error {
 }
 
 func (h *Handler) updateTransaction(ctx echo.Context) error {
+	var trInput bankingApp.Transaction
+	if err := ctx.Bind(&trInput); err != nil {
+		return SendJSONError(ctx, http.StatusBadRequest, err.Error())
+	}
+
+	if err := validate.Struct(trInput); err != nil {
+		return SendJSONError(ctx, http.StatusBadRequest, err.Error())
+	}
+
+	transactionID := ctx.Param("id")
+
 	claims := ctx.Get("user").(*jwt.Token).Claims.(*service.JwtBankingClaims)
 	userId := claims.UserId
-	return ctx.JSON(http.StatusOK, echo.Map{
-		"endpoint": "put /transactions/id " + userId,
-	})
+
+	updatedTransaction, err := h.service.Transaction.UpdateTransaction(userId, transactionID, trInput)
+	if err != nil {
+		return SendJSONError(ctx, http.StatusInternalServerError, err.Error())
+	}
+
+	return ctx.JSON(http.StatusOK, updatedTransaction)
 }
 
 func (h *Handler) deleteTransaction(ctx echo.Context) error {

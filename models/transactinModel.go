@@ -59,9 +59,19 @@ func ToTransactionModel(dto bankingApp.Transaction, userId string) (TransactionM
 		Amount:      amount,
 		Type:        dto.Type,
 		CategoryID:  objID,
-		Date:        now,
+		Date:        date,
 		Description: dto.Description,
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}, nil
+}
+
+func (m *TransactionModel) ToTransactionDTO() bankingApp.Transaction {
+	return bankingApp.Transaction{
+		Amount:      fmt.Sprintf("%v", m.Amount),
+		Type:        m.Type,
+		CategoryID:  m.CategoryID.Hex(),
+		Date:        m.Date,
+		Description: m.Description,
+	}
 }

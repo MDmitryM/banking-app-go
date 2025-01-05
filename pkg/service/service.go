@@ -11,8 +11,9 @@ type Authorization interface {
 }
 
 type Transaction interface {
-	CreateTransaction(userId string, transactionInput bankingApp.Transaction) (string, error)
-	DeleteTransaction(userId, transactionID string) error
+	CreateTransaction(userID string, transactionInput bankingApp.Transaction) (string, error)
+	DeleteTransaction(userID, transactionID string) error
+	UpdateTransaction(userID, transactionID string, transactionInput bankingApp.Transaction) (bankingApp.Transaction, error)
 }
 
 type Statistic interface {

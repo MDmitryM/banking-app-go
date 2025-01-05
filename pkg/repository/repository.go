@@ -13,6 +13,8 @@ type Authorization interface {
 type Transaction interface {
 	CreateTransaction(transaction models.TransactionModel) (string, error)
 	DeleteTransaction(userID, transactionID primitive.ObjectID) error
+	UpdateTransaction(transactionID primitive.ObjectID, updatedTransactionModel models.TransactionModel) (models.TransactionModel, error)
+	GetTransactionByID(transactioID primitive.ObjectID) (models.TransactionModel, error)
 }
 
 type Statistic interface {

@@ -4,10 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/MDmitryM/banking-app-go/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type TransactionMongo struct {
@@ -32,6 +35,21 @@ func (r *TransactionMongo) CreateTransaction(transaction models.TransactionModel
 	return transactionID, nil
 }
 
+func (r *TransactionMongo) GetTransactionByID(transactionID primitive.ObjectID) (models.TransactionModel, error) {
+	transactionCollection := r.db.database.Collection("transactions")
+
+	var transaction models.TransactionModel
+	err := transactionCollection.FindOne(context.Background(), bson.M{"_id": transactionID}).Decode(&transaction)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return models.TransactionModel{}, errors.New("transaction not found or not owned by the user")
+		}
+		return models.TransactionModel{}, fmt.Errorf("failed to get transaction: %w", err)
+	}
+
+	return transaction, nil
+}
+
 func (r *TransactionMongo) DeleteTransaction(userObjID, transactionObjID primitive.ObjectID) error {
 	transactionCollection := r.db.database.Collection("transactions")
 
@@ -53,4 +71,33 @@ func (r *TransactionMongo) DeleteTransaction(userObjID, transactionObjID primiti
 	}
 
 	return nil
+}
+
+func (r *TransactionMongo) UpdateTransaction(transactionObjID primitive.ObjectID, trModelToUpdate models.TransactionModel) (models.TransactionModel, error) {
+	transactionCollection := r.db.database.Collection("transactions")
+
+	existingTransaction, err := r.GetTransactionByID(transactionObjID)
+	if err != nil {
+		return models.TransactionModel{}, err
+	}
+
+	if existingTransaction.UserID != trModelToUpdate.UserID {
+		return models.TransactionModel{}, errors.New("operation not allowed")
+	}
+
+	trModelToUpdate.CreatedAt = existingTransaction.CreatedAt
+	trModelToUpdate.ID = transactionObjID
+	trModelToUpdate.UpdatedAt = time.Now()
+
+	var updatedTransaction models.TransactionModel
+	err = transactionCollection.FindOneAndUpdate(
+		context.Background(),
+		bson.M{"_id": trModelToUpdate.ID},
+		bson.M{"$set": trModelToUpdate},
+		options.FindOneAndUpdate().SetReturnDocument(options.After),
+	).Decode(&updatedTransaction)
+	if err != nil {
+		return models.TransactionModel{}, nil
+	}
+	return updatedTransaction, nil
 }
