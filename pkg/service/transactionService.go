@@ -28,13 +28,15 @@ func (s *TransactionService) CreateTransaction(userID string, transactionInput b
 }
 
 func (s *TransactionService) DeleteTransaction(userID, transactionID string) error {
-	if _, err := primitive.ObjectIDFromHex(userID); err != nil {
+	userObjID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
 		return errors.New("invalid user id format")
 	}
 
-	if _, err := primitive.ObjectIDFromHex(transactionID); err != nil {
+	transactionObjID, err := primitive.ObjectIDFromHex(transactionID)
+	if err != nil {
 		return errors.New("invalid transaction id format")
 	}
 
-	return s.repo.DeleteTransaction(userID, transactionID)
+	return s.repo.DeleteTransaction(userObjID, transactionObjID)
 }

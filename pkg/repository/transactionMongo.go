@@ -32,18 +32,8 @@ func (r *TransactionMongo) CreateTransaction(transaction models.TransactionModel
 	return transactionID, nil
 }
 
-func (r *TransactionMongo) DeleteTransaction(userID, transactionID string) error {
+func (r *TransactionMongo) DeleteTransaction(userObjID, transactionObjID primitive.ObjectID) error {
 	transactionCollection := r.db.database.Collection("transactions")
-
-	transactionObjID, err := primitive.ObjectIDFromHex(transactionID)
-	if err != nil {
-		return fmt.Errorf("invalid transaction ID: %w", err)
-	}
-
-	userObjID, err := primitive.ObjectIDFromHex(userID)
-	if err != nil {
-		return fmt.Errorf("invalid user ID: %w", err)
-	}
 
 	// Фильтр для удаления
 	filter := bson.M{

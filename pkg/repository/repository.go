@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/MDmitryM/banking-app-go/models"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Authorization interface {
@@ -11,7 +12,7 @@ type Authorization interface {
 
 type Transaction interface {
 	CreateTransaction(transaction models.TransactionModel) (string, error)
-	DeleteTransaction(userID, transactionID string) error
+	DeleteTransaction(userID, transactionID primitive.ObjectID) error
 }
 
 type Statistic interface {
