@@ -1,6 +1,8 @@
 package service
 
 import (
+	"errors"
+
 	bankingApp "github.com/MDmitryM/banking-app-go"
 	"github.com/MDmitryM/banking-app-go/models"
 	"github.com/MDmitryM/banking-app-go/pkg/repository"
@@ -47,4 +49,18 @@ func (s *CategoryService) GetUserCategories(userID string) ([]bankingApp.Categor
 	}
 
 	return categoriesDTO, nil
+}
+
+func (s *CategoryService) DeleteUserCategory(userID, categoryID string) error {
+	userObjID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return errors.New("invalid user ID")
+	}
+
+	categoryObjID, err := primitive.ObjectIDFromHex(categoryID)
+	if err != nil {
+		return errors.New("invalid category ID")
+	}
+
+	return s.repo.DeleteUserCategory(userObjID, categoryObjID)
 }

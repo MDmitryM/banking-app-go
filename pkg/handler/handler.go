@@ -41,9 +41,9 @@ func (h *Handler) SetupRouts(echo *echo.Echo) {
 	statistics.GET("/trends", h.trendStatistic)      // trends in user's income/expenses
 
 	//Categories
-	categories := api.Group("/categories")        // api/categories
-	categories.POST("", h.addCategory)            // add category
-	categories.GET("", h.getCategories)           // categories list
-	categories.PUT("/:name", h.updateCategory)    // change category name
-	categories.DELETE("/:name", h.deleteCategory) // delete category
+	categories := api.Group("/categories")      // api/categories
+	categories.POST("", h.addCategory)          // add category
+	categories.GET("", h.getCategories)         // categories list
+	categories.PUT("/:id", h.updateCategory)    // change category name
+	categories.DELETE("/:id", h.deleteCategory) // delete category
 }
