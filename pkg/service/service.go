@@ -22,6 +22,7 @@ type Statistic interface {
 
 type Category interface {
 	CreateCategory(userID string, categoryInput bankingApp.Category) (string, error)
+	GetUserCategories(userID string) ([]bankingApp.Category, error)
 }
 
 type Service struct {

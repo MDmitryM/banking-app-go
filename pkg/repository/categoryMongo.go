@@ -45,3 +45,21 @@ func (r *CategoryMongo) CreateCategory(categoryToCreate models.CategoryModel) (s
 
 	return result.InsertedID.(primitive.ObjectID).Hex(), nil
 }
+
+func (r *CategoryMongo) GetUserCategories(userID primitive.ObjectID) ([]models.CategoryModel, error) {
+	categoriesCollection := r.db.database.Collection("categories")
+
+	cursor, err := categoriesCollection.Find(context.Background(),
+		bson.M{"user_id": userID})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(context.Background())
+
+	var categoriesModels []models.CategoryModel
+	if err := cursor.All(context.Background(), &categoriesModels); err != nil {
+		return nil, err
+	}
+
+	return categoriesModels, nil
+}

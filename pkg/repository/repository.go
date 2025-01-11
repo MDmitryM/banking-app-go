@@ -23,6 +23,7 @@ type Statistic interface {
 
 type Category interface {
 	CreateCategory(categoryToCreate models.CategoryModel) (string, error)
+	GetUserCategories(userID primitive.ObjectID) ([]models.CategoryModel, error)
 }
 
 type Repository struct {

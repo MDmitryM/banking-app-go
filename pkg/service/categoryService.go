@@ -4,6 +4,7 @@ import (
 	bankingApp "github.com/MDmitryM/banking-app-go"
 	"github.com/MDmitryM/banking-app-go/models"
 	"github.com/MDmitryM/banking-app-go/pkg/repository"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type CategoryService struct {
@@ -28,4 +29,22 @@ func (s *CategoryService) CreateCategory(userID string, categoryInput bankingApp
 	}
 
 	return createdCategoryID, nil
+}
+
+func (s *CategoryService) GetUserCategories(userID string) ([]bankingApp.Category, error) {
+	userObjID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return nil, err
+	}
+	categoriesModels, err := s.repo.GetUserCategories(userObjID)
+	if err != nil {
+		return nil, err
+	}
+
+	var categoriesDTO []bankingApp.Category
+	for _, v := range categoriesModels {
+		categoriesDTO = append(categoriesDTO, v.ToCategoryDTO())
+	}
+
+	return categoriesDTO, nil
 }

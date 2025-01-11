@@ -38,10 +38,18 @@ func (h *Handler) addCategory(ctx echo.Context) error {
 
 func (h *Handler) getCategories(ctx echo.Context) error {
 	claims := ctx.Get("user").(*jwt.Token).Claims.(*service.JwtBankingClaims)
-	userId := claims.UserId
-	return ctx.JSON(http.StatusOK, echo.Map{
-		"endpoint": "get categories list /categories " + userId,
-	})
+	userID := claims.UserId
+
+	userCategories, err := h.service.Category.GetUserCategories(userID)
+	if err != nil {
+		return SendJSONError(ctx, http.StatusInternalServerError, err.Error())
+	}
+
+	if userCategories == nil {
+		userCategories = []bankingApp.Category{}
+	}
+
+	return ctx.JSON(http.StatusOK, userCategories)
 }
 
 func (h *Handler) updateCategory(ctx echo.Context) error {
