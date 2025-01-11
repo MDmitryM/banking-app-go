@@ -68,6 +68,7 @@ func ToTransactionModel(dto bankingApp.Transaction, userId string) (TransactionM
 
 func (m *TransactionModel) ToTransactionDTO() bankingApp.Transaction {
 	return bankingApp.Transaction{
+		ID:          m.ID.Hex(),
 		Amount:      fmt.Sprintf("%v", m.Amount),
 		Type:        m.Type,
 		CategoryID:  m.CategoryID.Hex(),

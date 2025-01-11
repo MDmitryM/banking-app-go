@@ -24,3 +24,11 @@ func ToCategoryModel(userID string, categoryInput bankingApp.Category) (Category
 		CategoryType: categoryInput.CategoryType,
 	}, nil
 }
+
+func (m *CategoryModel) ToCategoryDTO() bankingApp.Category {
+	return bankingApp.Category{
+		ID:           m.ID.Hex(),
+		CategoryName: m.CategoryName,
+		CategoryType: m.CategoryType,
+	}
+}
