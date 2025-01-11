@@ -21,6 +21,7 @@ type Statistic interface {
 }
 
 type Category interface {
+	CreateCategory(userID string, categoryInput bankingApp.Category) (string, error)
 }
 
 type Service struct {
@@ -34,5 +35,6 @@ func NewService(repo *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(repo.Authorization),
 		Transaction:   NewTransactionService(repo.Transaction),
+		Category:      NewCategoryService(repo.Category),
 	}
 }

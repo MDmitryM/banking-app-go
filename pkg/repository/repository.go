@@ -22,6 +22,7 @@ type Statistic interface {
 }
 
 type Category interface {
+	CreateCategory(categoryToCreate models.CategoryModel) (string, error)
 }
 
 type Repository struct {
@@ -35,5 +36,6 @@ func NewRepository(db *MongoDB) *Repository {
 	return &Repository{
 		Authorization: NewAuthMongo(db),
 		Transaction:   NewTransactionMongo(db),
+		Category:      NewCategoryMongo(db),
 	}
 }

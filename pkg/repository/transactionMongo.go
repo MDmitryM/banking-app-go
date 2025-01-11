@@ -26,6 +26,23 @@ func NewTransactionMongo(db *MongoDB) *TransactionMongo {
 func (r *TransactionMongo) CreateTransaction(transaction models.TransactionModel) (string, error) {
 	transactionCollection := r.db.database.Collection("transactions")
 
+	//check if category exists
+	if transaction.CategoryID.Hex() != models.DefaultCategoryID {
+		categoriesCollection := r.db.database.Collection("categories")
+
+		categoryFilter := bson.M{
+			"_id":     transaction.CategoryID,
+			"user_id": transaction.UserID,
+		}
+
+		if err := categoriesCollection.FindOne(context.Background(), categoryFilter).Err(); err != nil {
+			if err == mongo.ErrNoDocuments {
+				return "", errors.New("category not found for user")
+			}
+			return "", err
+		}
+	}
+
 	result, err := transactionCollection.InsertOne(context.Background(), transaction)
 	if err != nil {
 		return "", err

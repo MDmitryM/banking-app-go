@@ -42,8 +42,8 @@ func (h *Handler) SetupRouts(echo *echo.Echo) {
 
 	//Categories
 	categories := api.Group("/categories")        // api/categories
-	categories.POST("/", h.addCategory)           // add category
-	categories.GET("/", h.getCategories)          // categories list
+	categories.POST("", h.addCategory)            // add category
+	categories.GET("", h.getCategories)           // categories list
 	categories.PUT("/:name", h.updateCategory)    // change category name
 	categories.DELETE("/:name", h.deleteCategory) // delete category
 }
