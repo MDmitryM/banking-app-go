@@ -35,10 +35,8 @@ func (h *Handler) SetupRouts(echo *echo.Echo) {
 	transactions.DELETE("/:id", h.deleteTransaction) // /api/transactions/:id delete transaction
 
 	//Statistics
-	statistics := api.Group("/statistics")           // /api/statistics
-	statistics.GET("/monthly", h.monthStatistic)     // data for month
-	statistics.GET("/category", h.categotyStatistic) // data for category
-	statistics.GET("/trends", h.trendStatistic)      // trends in user's income/expenses
+	statistics := api.Group("/statistics")       // /api/statistics
+	statistics.GET("/monthly", h.monthStatistic) // data for month
 
 	//Categories
 	categories := api.Group("/categories")      // api/categories

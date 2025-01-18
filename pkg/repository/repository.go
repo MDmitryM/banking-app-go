@@ -1,6 +1,9 @@
 package repository
 
 import (
+	"time"
+
+	bankingApp "github.com/MDmitryM/banking-app-go"
 	"github.com/MDmitryM/banking-app-go/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -19,12 +22,14 @@ type Transaction interface {
 }
 
 type Statistic interface {
+	GetMonthlyStatistic(userID primitive.ObjectID, startDate, endDate time.Time) (*bankingApp.MonthlyStatistics, error)
 }
 
 type Category interface {
 	CreateCategory(categoryToCreate models.CategoryModel) (string, error)
 	GetUserCategories(userID primitive.ObjectID) ([]models.CategoryModel, error)
 	DeleteUserCategory(userObjID, categoryObjID primitive.ObjectID) error
+	UpdateCategoryName(userObjID, categoryObjID primitive.ObjectID, updated string) error
 }
 
 type Repository struct {
@@ -39,5 +44,6 @@ func NewRepository(db *MongoDB) *Repository {
 		Authorization: NewAuthMongo(db),
 		Transaction:   NewTransactionMongo(db),
 		Category:      NewCategoryMongo(db),
+		Statistic:     NewStatisticMongo(db),
 	}
 }

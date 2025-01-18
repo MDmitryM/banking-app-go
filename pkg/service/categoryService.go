@@ -64,3 +64,17 @@ func (s *CategoryService) DeleteUserCategory(userID, categoryID string) error {
 
 	return s.repo.DeleteUserCategory(userObjID, categoryObjID)
 }
+
+func (s *CategoryService) UpdateCategoryName(userID, categoryID string, updatedName string) error {
+	userObjID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return err
+	}
+
+	categoryObjID, err := primitive.ObjectIDFromHex(categoryID)
+	if err != nil {
+		return err
+	}
+
+	return s.repo.UpdateCategoryName(userObjID, categoryObjID, updatedName)
+}

@@ -18,12 +18,14 @@ type Transaction interface {
 }
 
 type Statistic interface {
+	GetMonthlyStatistic(userID, month string) (*bankingApp.MonthlyStatistics, error)
 }
 
 type Category interface {
 	CreateCategory(userID string, categoryInput bankingApp.Category) (string, error)
 	GetUserCategories(userID string) ([]bankingApp.Category, error)
 	DeleteUserCategory(userID, categoryID string) error
+	UpdateCategoryName(userID, categoryID string, updatedCategoryName string) error
 }
 
 type Service struct {
@@ -38,5 +40,6 @@ func NewService(repo *repository.Repository) *Service {
 		Authorization: NewAuthService(repo.Authorization),
 		Transaction:   NewTransactionService(repo.Transaction),
 		Category:      NewCategoryService(repo.Category),
+		Statistic:     NewStatisticService(repo.Statistic),
 	}
 }

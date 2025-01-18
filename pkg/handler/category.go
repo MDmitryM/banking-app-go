@@ -52,12 +52,33 @@ func (h *Handler) getCategories(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, userCategories)
 }
 
+type CategoryNameInput struct {
+	UpdatedName string `json:"category_name" validate:"required"`
+}
+
 func (h *Handler) updateCategory(ctx echo.Context) error {
+	categoryID := ctx.Param("id")
+	if categoryID == "" {
+		return SendJSONError(ctx, http.StatusBadRequest, "invalid category id")
+	}
+
+	var categoryDTO CategoryNameInput
+	if err := ctx.Bind(&categoryDTO); err != nil {
+		return SendJSONError(ctx, http.StatusBadRequest, err.Error())
+	}
+
+	if err := validate.Struct(categoryDTO); err != nil {
+		return SendJSONError(ctx, http.StatusBadRequest, err.Error())
+	}
+
 	claims := ctx.Get("user").(*jwt.Token).Claims.(*service.JwtBankingClaims)
 	userId := claims.UserId
-	return ctx.JSON(http.StatusOK, echo.Map{
-		"endpoint": "put /categories/id " + userId,
-	})
+
+	if err := h.service.Category.UpdateCategoryName(userId, categoryID, categoryDTO.UpdatedName); err != nil {
+		return SendJSONError(ctx, http.StatusBadRequest, err.Error())
+	}
+
+	return ctx.NoContent(http.StatusOK)
 }
 
 func (h *Handler) deleteCategory(ctx echo.Context) error {

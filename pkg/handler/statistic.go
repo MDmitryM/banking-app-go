@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/MDmitryM/banking-app-go/pkg/service"
 	"github.com/golang-jwt/jwt/v5"
@@ -9,11 +10,25 @@ import (
 )
 
 func (h *Handler) monthStatistic(ctx echo.Context) error {
+	month := ctx.QueryParam("month")
+	if month == "" {
+		month = time.Now().Format("2006-01")
+	}
+
+	_, err := time.Parse("2006-01", month)
+	if err != nil {
+		return SendJSONError(ctx, http.StatusBadRequest, "invalid month format. Use YYYY-MM")
+	}
+
 	claims := ctx.Get("user").(*jwt.Token).Claims.(*service.JwtBankingClaims)
 	userId := claims.UserId
-	return ctx.JSON(http.StatusOK, echo.Map{
-		"endpoint": "get statistics/monthly " + userId,
-	})
+
+	stats, err := h.service.Statistic.GetMonthlyStatistic(userId, month)
+	if err != nil {
+		return SendJSONError(ctx, http.StatusInternalServerError, err.Error())
+	}
+
+	return ctx.JSON(http.StatusOK, stats)
 }
 
 func (h *Handler) categotyStatistic(ctx echo.Context) error {
@@ -21,13 +36,5 @@ func (h *Handler) categotyStatistic(ctx echo.Context) error {
 	userId := claims.UserId
 	return ctx.JSON(http.StatusOK, echo.Map{
 		"endpoint": "get statistics/category " + userId,
-	})
-}
-
-func (h *Handler) trendStatistic(ctx echo.Context) error {
-	claims := ctx.Get("user").(*jwt.Token).Claims.(*service.JwtBankingClaims)
-	userId := claims.UserId
-	return ctx.JSON(http.StatusOK, echo.Map{
-		"endpoint": "get statistics/trends " + userId,
 	})
 }

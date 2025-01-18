@@ -118,3 +118,29 @@ func (r *CategoryMongo) DeleteUserCategory(userObjID, categoryObjID primitive.Ob
 
 	return err
 }
+
+func (r *CategoryMongo) UpdateCategoryName(userObjID, categoryObjID primitive.ObjectID, updatedName string) error {
+	categoryCollection := r.db.database.Collection("categories")
+
+	update := bson.M{
+		"$set": bson.M{
+			"category_name": updatedName,
+		},
+	}
+
+	filter := bson.M{
+		"_id":     categoryObjID,
+		"user_id": userObjID,
+	}
+
+	result, err := categoryCollection.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return err
+	}
+
+	if result.ModifiedCount == 0 {
+		return errors.New("category not found or not belongs to user")
+	}
+
+	return nil
+}
