@@ -30,11 +30,3 @@ func (h *Handler) monthStatistic(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, stats)
 }
-
-func (h *Handler) categotyStatistic(ctx echo.Context) error {
-	claims := ctx.Get("user").(*jwt.Token).Claims.(*service.JwtBankingClaims)
-	userId := claims.UserId
-	return ctx.JSON(http.StatusOK, echo.Map{
-		"endpoint": "get statistics/category " + userId,
-	})
-}
