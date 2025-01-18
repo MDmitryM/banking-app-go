@@ -1,0 +1,113 @@
+basePath: /
+definitions:
+  bankingApp.User:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  handler.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  handler.signInInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  handler.signInResponce:
+    properties:
+      acess_token:
+        type: string
+    type: object
+  handler.singUpResponce:
+    properties:
+      access_token:
+        type: string
+      id:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API server for banking application
+  title: banking app API
+  version: "1.0"
+paths:
+  /auth/sign-in:
+    post:
+      consumes:
+      - application/json
+      description: Аутентификация пользователя. Возвращает токен доступа.
+      parameters:
+      - description: User credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handler.signInInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.signInResponce'
+        "400":
+          description: 'Bad request: ошибка привязки или валидации данных'
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: 'Internal server error: ошибка генерации токена'
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: User SignIn
+      tags:
+      - Auth
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Create account
+      parameters:
+      - description: Account credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/bankingApp.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.singUpResponce'
+        "400":
+          description: 'Bad request: ошибка привязки или валидации данных'
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: 'Internal server error: ошибка создания пользователя или генерации
+            токена'
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: SignUp
+      tags:
+      - Auth
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

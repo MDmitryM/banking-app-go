@@ -1,9 +1,11 @@
 package handler
 
 import (
+	_ "github.com/MDmitryM/banking-app-go/docs"
 	"github.com/MDmitryM/banking-app-go/pkg/service"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 var validate = validator.New(validator.WithRequiredStructEnabled())
@@ -19,6 +21,9 @@ func NewHandler(service *service.Service) *Handler {
 }
 
 func (h *Handler) SetupRouts(echo *echo.Echo) {
+	//Swagger
+	echo.GET("/swagger/*", echoSwagger.WrapHandler)
+
 	//Authorization
 	auth := echo.Group("/auth")     // /auth
 	auth.POST("/sign-in", h.signIn) // /auth/sign-in

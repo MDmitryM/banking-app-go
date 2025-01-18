@@ -17,6 +17,14 @@ import (
 	"github.com/spf13/viper"
 )
 
+// @title						banking app API
+// @version					    1.0
+// @description				    API server for banking application
+// @host						localhost:8080
+// @BasePath					/
+// @securityDefinitions.apikey	ApiKeyAuth
+// @in							header
+// @name						Authorization
 func main() {
 	fmt.Println("Hello from banking app!")
 	logrus.SetFormatter(new(logrus.JSONFormatter))
