@@ -1,5 +1,69 @@
 basePath: /
 definitions:
+  bankingApp.Category:
+    properties:
+      category_name:
+        type: string
+      category_type:
+        enum:
+        - income
+        - expence
+        type: string
+      id:
+        type: string
+    required:
+    - category_name
+    - category_type
+    type: object
+  bankingApp.CategoryAmount:
+    properties:
+      amount:
+        type: number
+      category_id:
+        type: string
+      category_name:
+        type: string
+      category_type:
+        type: string
+    type: object
+  bankingApp.MonthlyStatistics:
+    properties:
+      balance:
+        type: number
+      categories:
+        items:
+          $ref: '#/definitions/bankingApp.CategoryAmount'
+        type: array
+      month:
+        description: формат "2024-01"
+        type: string
+      total_expense:
+        type: number
+      total_income:
+        type: number
+    type: object
+  bankingApp.Transaction:
+    properties:
+      amount:
+        type: string
+      category_id:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      time:
+        type: string
+      type:
+        enum:
+        - income
+        - expence
+        type: string
+    required:
+    - amount
+    - time
+    - type
+    type: object
   bankingApp.User:
     properties:
       email:
@@ -13,9 +77,26 @@ definitions:
     - password
     - username
     type: object
+  handler.CategoryNameInput:
+    properties:
+      category_name:
+        type: string
+    required:
+    - category_name
+    type: object
   handler.ErrorResponse:
     properties:
       error:
+        type: string
+    type: object
+  handler.addCategoryResponce:
+    properties:
+      category_id:
+        type: string
+    type: object
+  handler.addTransactionResponce:
+    properties:
+      transaction_id:
         type: string
     type: object
   handler.signInInput:
@@ -44,6 +125,301 @@ info:
   title: banking app API
   version: "1.0"
 paths:
+  /api/categories:
+    get:
+      description: Получения всех категорий пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список категорй пользователя
+          schema:
+            items:
+              $ref: '#/definitions/bankingApp.Category'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get categories
+      tags:
+      - Categories
+    post:
+      consumes:
+      - application/json
+      description: Создание пользовательской категории
+      parameters:
+      - description: Category details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/bankingApp.Category'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное создание категории
+          schema:
+            $ref: '#/definitions/handler.addCategoryResponce'
+        "400":
+          description: Invalid body
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Add category
+      tags:
+      - Categories
+  /api/categories/{id}:
+    delete:
+      description: Удаление категории пользователя
+      parameters:
+      - description: ID удаляемой категории
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Удаление успешно
+        "400":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete category
+      tags:
+      - Categories
+    put:
+      consumes:
+      - application/json
+      description: Обновление названия категории пользователя
+      parameters:
+      - description: Новое название категории
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CategoryNameInput'
+      - description: ID категории у которой изменяется имя
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Обновлено успешно
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update category name
+      tags:
+      - Categories
+  /api/statistics/monthly:
+    get:
+      description: Получение отчета за месяц по категориям
+      parameters:
+      - description: Месяц за который надо получить статистику формат YYYY-MM
+        in: query
+        name: month
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Статистика
+          schema:
+            items:
+              $ref: '#/definitions/bankingApp.MonthlyStatistics'
+            type: array
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorize
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Monthly Statistic by category
+      tags:
+      - Statistics
+  /api/transactions:
+    get:
+      description: Получить транзакций пользователя по страницам
+      parameters:
+      - description: Page param
+        in: query
+        name: page
+        type: string
+      - description: Page Size param
+        in: query
+        name: pageSize
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список транзакций постранично
+          schema:
+            items:
+              $ref: '#/definitions/bankingApp.Transaction'
+            type: array
+        "401":
+          description: Unautharized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get User Transaction
+      tags:
+      - Transactions
+    post:
+      consumes:
+      - application/json
+      description: Добавить транзакцию пользователя
+      parameters:
+      - description: Transaction details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/bankingApp.Transaction'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное добавление транзакции, возвращается ID тр. в БД
+          schema:
+            $ref: '#/definitions/handler.addTransactionResponce'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unautharized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Add Transaction
+      tags:
+      - Transactions
+  /api/transactions/{id}:
+    delete:
+      description: Удалить транзакцию пользователя по ID
+      parameters:
+      - description: ID транзакции
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Успешное обновление данных транзакции, возвращается обновленная
+            запись из БД
+        "401":
+          description: Unautharized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Transaction
+      tags:
+      - Transactions
+    put:
+      consumes:
+      - application/json
+      description: Обновить данные о транзакции пользователя
+      parameters:
+      - description: Transaction details
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/bankingApp.Transaction'
+      - description: ID транзакции
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное обновление данных транзакции, возвращается обновленная
+            запись из БД
+          schema:
+            $ref: '#/definitions/bankingApp.Transaction'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unautharized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update Transaction
+      tags:
+      - Transactions
   /auth/sign-in:
     post:
       consumes:

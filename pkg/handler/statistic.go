@@ -9,6 +9,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// @Summary     Monthly Statistic by category
+// @Description Получение отчета за месяц по категориям
+// @Tags        Statistics
+// @Security	ApiKeyAuth
+// @Produce		json
+// @Param		month	   query     string    false	"Месяц за который надо получить статистику формат YYYY-MM"
+// @Success		200		   {array}   bankingApp.MonthlyStatistics	"Статистика"
+// @Failure		400 	   {object}  ErrorResponse    "Bad request"
+// @Failure 	401		   {object}  ErrorResponse    "Unauthorize"
+// @Failure     500        {object}  ErrorResponse	  "Internal server error"
+// @Router		/api/statistics/monthly [get]
 func (h *Handler) monthStatistic(ctx echo.Context) error {
 	month := ctx.QueryParam("month")
 	if month == "" {
