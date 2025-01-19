@@ -32,14 +32,22 @@ type Category interface {
 	UpdateCategoryName(userObjID, categoryObjID primitive.ObjectID, updated string) error
 }
 
+type CacheStatistic interface {
+}
+
+type CacheCategory interface {
+}
+
 type Repository struct {
 	Authorization
 	Transaction
 	Statistic
 	Category
+	CacheStatistic
+	CacheCategory
 }
 
-func NewRepository(db *MongoDB) *Repository {
+func NewRepository(db *MongoDB, redisDb *RedisDB) *Repository {
 	return &Repository{
 		Authorization: NewAuthMongo(db),
 		Transaction:   NewTransactionMongo(db),

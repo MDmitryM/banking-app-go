@@ -53,7 +53,18 @@ func main() {
 	}
 	defer db.Close(context.Background())
 
-	repository := repository.NewRepository(db)
+	redisConf := repository.RedisConfig{
+		Host:     viper.GetString("redis_dev_db.host"),
+		Port:     viper.GetString("redis_dev_db.port"),
+		Password: os.Getenv("REDIS_PASSWORD"),
+		DB:       viper.GetInt("redis_dev_db.DB"),
+	}
+	redisDb, err := repository.NewRedisClient(redisConf)
+	if err != nil {
+		logrus.Fatalf("error while creating redis DB err - %s", err.Error())
+	}
+
+	repository := repository.NewRepository(db, redisDb)
 	service := service.NewService(repository)
 
 	hander := handler.NewHandler(service)

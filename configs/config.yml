@@ -9,3 +9,8 @@ dev_db:
   username: "mongo"
   database: "budget_app"
   timeout: 10s
+#redis db config
+redis_dev_db:
+  host: "localhost"
+  port: "6379"
+  DB: 0
