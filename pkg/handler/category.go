@@ -45,6 +45,11 @@ func (h *Handler) addCategory(ctx echo.Context) error {
 		return SendJSONError(ctx, http.StatusInternalServerError, err.Error())
 	}
 
+	err = h.service.CachedCategory.InvalidateUserCache(userID)
+	if err != nil {
+		logrus.Errorf("Failed to invalidate cache for user %s: %v", userID, err.Error())
+	}
+
 	return ctx.JSON(http.StatusOK, addCategoryResponce{
 		CategoryID: catID,
 	})
@@ -117,10 +122,15 @@ func (h *Handler) updateCategory(ctx echo.Context) error {
 	}
 
 	claims := ctx.Get("user").(*jwt.Token).Claims.(*service.JwtBankingClaims)
-	userId := claims.UserId
+	userID := claims.UserId
 
-	if err := h.service.Category.UpdateCategoryName(userId, categoryID, categoryDTO.UpdatedName); err != nil {
+	if err := h.service.Category.UpdateCategoryName(userID, categoryID, categoryDTO.UpdatedName); err != nil {
 		return SendJSONError(ctx, http.StatusInternalServerError, err.Error())
+	}
+
+	err := h.service.CachedCategory.InvalidateUserCache(userID)
+	if err != nil {
+		logrus.Errorf("Failed to invalidate cache for user %s: %v", userID, err.Error())
 	}
 
 	return ctx.NoContent(http.StatusOK)
@@ -149,6 +159,11 @@ func (h *Handler) deleteCategory(ctx echo.Context) error {
 	err := h.service.Category.DeleteUserCategory(userID, categoryID)
 	if err != nil {
 		return SendJSONError(ctx, http.StatusInternalServerError, err.Error())
+	}
+
+	err = h.service.CachedCategory.InvalidateUserCache(userID)
+	if err != nil {
+		logrus.Errorf("Failed to invalidate cache for user %s: %v", userID, err.Error())
 	}
 
 	return ctx.NoContent(http.StatusOK)

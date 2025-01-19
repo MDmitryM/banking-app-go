@@ -34,6 +34,7 @@ type CachedStatistic interface {
 type CachedCategory interface {
 	CacheUserCategories(userID string, categories []bankingApp.Category) error
 	GetUserCachedCategories(userID string) ([]bankingApp.Category, error)
+	InvalidateUserCache(userID string) error
 }
 
 type Service struct {

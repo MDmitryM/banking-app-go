@@ -33,8 +33,19 @@ func (r *CategoryRedis) GetUserCachedCategories(userID string) (string, error) {
 
 func (r *CategoryRedis) CacheUserCategories(userID, data string) error {
 	cacheKey := fmt.Sprintf("categories:%s", userID)
-	err := r.db.redisClient.Set(context.Background(), cacheKey, data, time.Second*10).Err()
+	err := r.db.redisClient.Set(context.Background(), cacheKey, data, time.Second*60).Err()
 	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *CategoryRedis) DeleteUserCachedCategories(userID string) error {
+	cacheKey := fmt.Sprintf("categories:%s", userID)
+
+	err := r.db.redisClient.Del(context.Background(), cacheKey).Err()
+	if err != nil && err != redis.Nil {
 		return err
 	}
 

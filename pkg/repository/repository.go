@@ -41,6 +41,7 @@ type CachedStatistic interface {
 type CachedCategory interface {
 	CacheUserCategories(userID, data string) error
 	GetUserCachedCategories(userID string) (string, error)
+	DeleteUserCachedCategories(userId string) error
 }
 
 type Repository struct {
