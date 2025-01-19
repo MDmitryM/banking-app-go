@@ -4,9 +4,11 @@ import (
 	"net/http"
 
 	bankingApp "github.com/MDmitryM/banking-app-go"
+	"github.com/MDmitryM/banking-app-go/pkg/repository"
 	"github.com/MDmitryM/banking-app-go/pkg/service"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 )
 
 type addCategoryResponce struct {
@@ -61,6 +63,14 @@ func (h *Handler) getCategories(ctx echo.Context) error {
 	claims := ctx.Get("user").(*jwt.Token).Claims.(*service.JwtBankingClaims)
 	userID := claims.UserId
 
+	cachedCategories, err := h.service.CachedCategory.GetUserCachedCategories(userID)
+	if err == nil {
+		return ctx.JSON(http.StatusOK, cachedCategories)
+	}
+	if err == repository.ErrCacheNotFound {
+		logrus.Print(err.Error())
+	}
+
 	userCategories, err := h.service.Category.GetUserCategories(userID)
 	if err != nil {
 		return SendJSONError(ctx, http.StatusInternalServerError, err.Error())
@@ -68,6 +78,8 @@ func (h *Handler) getCategories(ctx echo.Context) error {
 
 	if userCategories == nil {
 		userCategories = []bankingApp.Category{}
+	} else {
+		h.service.CachedCategory.CacheUserCategories(userID, userCategories)
 	}
 
 	return ctx.JSON(http.StatusOK, userCategories)

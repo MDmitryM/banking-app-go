@@ -1,12 +1,15 @@
 package repository
 
 import (
+	"errors"
 	"time"
 
 	bankingApp "github.com/MDmitryM/banking-app-go"
 	"github.com/MDmitryM/banking-app-go/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+var ErrCacheNotFound = errors.New("cache not found")
 
 type Authorization interface {
 	CreateUser(user models.UserModel) (string, error)
@@ -32,10 +35,12 @@ type Category interface {
 	UpdateCategoryName(userObjID, categoryObjID primitive.ObjectID, updated string) error
 }
 
-type CacheStatistic interface {
+type CachedStatistic interface {
 }
 
-type CacheCategory interface {
+type CachedCategory interface {
+	CacheUserCategories(userID, data string) error
+	GetUserCachedCategories(userID string) (string, error)
 }
 
 type Repository struct {
@@ -43,15 +48,16 @@ type Repository struct {
 	Transaction
 	Statistic
 	Category
-	CacheStatistic
-	CacheCategory
+	CachedStatistic
+	CachedCategory
 }
 
 func NewRepository(db *MongoDB, redisDb *RedisDB) *Repository {
 	return &Repository{
-		Authorization: NewAuthMongo(db),
-		Transaction:   NewTransactionMongo(db),
-		Category:      NewCategoryMongo(db),
-		Statistic:     NewStatisticMongo(db),
+		Authorization:  NewAuthMongo(db),
+		Transaction:    NewTransactionMongo(db),
+		Category:       NewCategoryMongo(db),
+		Statistic:      NewStatisticMongo(db),
+		CachedCategory: NewCategoryRedis(redisDb),
 	}
 }

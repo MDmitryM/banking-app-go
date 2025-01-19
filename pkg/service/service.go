@@ -28,18 +28,29 @@ type Category interface {
 	UpdateCategoryName(userID, categoryID string, updatedCategoryName string) error
 }
 
+type CachedStatistic interface {
+}
+
+type CachedCategory interface {
+	CacheUserCategories(userID string, categories []bankingApp.Category) error
+	GetUserCachedCategories(userID string) ([]bankingApp.Category, error)
+}
+
 type Service struct {
 	Authorization
 	Transaction
 	Statistic
 	Category
+	CachedStatistic
+	CachedCategory
 }
 
 func NewService(repo *repository.Repository) *Service {
 	return &Service{
-		Authorization: NewAuthService(repo.Authorization),
-		Transaction:   NewTransactionService(repo.Transaction),
-		Category:      NewCategoryService(repo.Category),
-		Statistic:     NewStatisticService(repo.Statistic),
+		Authorization:  NewAuthService(repo.Authorization),
+		Transaction:    NewTransactionService(repo.Transaction),
+		Category:       NewCategoryService(repo.Category),
+		Statistic:      NewStatisticService(repo.Statistic),
+		CachedCategory: NewCachedCategory(repo.CachedCategory),
 	}
 }
