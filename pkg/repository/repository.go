@@ -18,7 +18,7 @@ type Authorization interface {
 
 type Transaction interface {
 	CreateTransaction(transaction models.TransactionModel) (string, error)
-	DeleteTransaction(userID, transactionID primitive.ObjectID) error
+	DeleteTransaction(userID, transactionID primitive.ObjectID) (time.Time, error)
 	UpdateTransaction(transactionID primitive.ObjectID, updatedTransactionModel models.TransactionModel) (models.TransactionModel, error)
 	GetTransactionByID(transactioID primitive.ObjectID) (models.TransactionModel, error)
 	GetTransactions(userID primitive.ObjectID, offset, limit int) ([]models.TransactionModel, error)
@@ -36,6 +36,10 @@ type Category interface {
 }
 
 type CachedStatistic interface {
+	CacheUserStatistic(userID, month, stats string) error
+	GetUserCachedStatistic(userID, month string) (string, error)
+	DeleteCachedStatisticByMonth(userID, month string) error
+	DeleteAllUserCachedStatistics(userID string) error
 }
 
 type CachedCategory interface {
@@ -55,10 +59,11 @@ type Repository struct {
 
 func NewRepository(db *MongoDB, redisDb *RedisDB) *Repository {
 	return &Repository{
-		Authorization:  NewAuthMongo(db),
-		Transaction:    NewTransactionMongo(db),
-		Category:       NewCategoryMongo(db),
-		Statistic:      NewStatisticMongo(db),
-		CachedCategory: NewCategoryRedis(redisDb),
+		Authorization:   NewAuthMongo(db),
+		Transaction:     NewTransactionMongo(db),
+		Category:        NewCategoryMongo(db),
+		Statistic:       NewStatisticMongo(db),
+		CachedCategory:  NewCategoryRedis(redisDb),
+		CachedStatistic: NewStatisticRedis(redisDb),
 	}
 }

@@ -45,9 +45,13 @@ func (h *Handler) addCategory(ctx echo.Context) error {
 		return SendJSONError(ctx, http.StatusInternalServerError, err.Error())
 	}
 
-	err = h.service.CachedCategory.InvalidateUserCache(userID)
+	err = h.service.CachedCategory.InvalidateUserCategoryCache(userID)
 	if err != nil {
-		logrus.Errorf("Failed to invalidate cache for user %s: %v", userID, err.Error())
+		logrus.Errorf("Failed to invalidate category cache for user %s: %v", userID, err.Error())
+	}
+
+	if err := h.service.CachedStatistic.InvalidateUserStatisticCache(userID); err != nil {
+		logrus.Errorf("Failed to invalidate all statistic cache for user %s: %v", userID, err)
 	}
 
 	return ctx.JSON(http.StatusOK, addCategoryResponce{
@@ -72,7 +76,7 @@ func (h *Handler) getCategories(ctx echo.Context) error {
 	if err == nil {
 		return ctx.JSON(http.StatusOK, cachedCategories)
 	}
-	if err == repository.ErrCacheNotFound {
+	if err != repository.ErrCacheNotFound {
 		logrus.Print(err.Error())
 	}
 
@@ -128,9 +132,13 @@ func (h *Handler) updateCategory(ctx echo.Context) error {
 		return SendJSONError(ctx, http.StatusInternalServerError, err.Error())
 	}
 
-	err := h.service.CachedCategory.InvalidateUserCache(userID)
+	err := h.service.CachedCategory.InvalidateUserCategoryCache(userID)
 	if err != nil {
-		logrus.Errorf("Failed to invalidate cache for user %s: %v", userID, err.Error())
+		logrus.Errorf("Failed to invalidate category cache for user %s: %v", userID, err.Error())
+	}
+
+	if err := h.service.CachedStatistic.InvalidateUserStatisticCache(userID); err != nil {
+		logrus.Errorf("Failed to invalidate all statistic cache for user %s: %v", userID, err)
 	}
 
 	return ctx.NoContent(http.StatusOK)
@@ -161,9 +169,13 @@ func (h *Handler) deleteCategory(ctx echo.Context) error {
 		return SendJSONError(ctx, http.StatusInternalServerError, err.Error())
 	}
 
-	err = h.service.CachedCategory.InvalidateUserCache(userID)
+	err = h.service.CachedCategory.InvalidateUserCategoryCache(userID)
 	if err != nil {
-		logrus.Errorf("Failed to invalidate cache for user %s: %v", userID, err.Error())
+		logrus.Errorf("Failed to invalidate category cache for user %s: %v", userID, err.Error())
+	}
+
+	if err := h.service.CachedStatistic.InvalidateUserStatisticCache(userID); err != nil {
+		logrus.Errorf("Failed to invalidate all statistic cache for user %s: %v", userID, err)
 	}
 
 	return ctx.NoContent(http.StatusOK)

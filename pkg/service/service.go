@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	bankingApp "github.com/MDmitryM/banking-app-go"
 	"github.com/MDmitryM/banking-app-go/pkg/repository"
 )
@@ -12,7 +14,7 @@ type Authorization interface {
 
 type Transaction interface {
 	CreateTransaction(userID string, transactionInput bankingApp.Transaction) (string, error)
-	DeleteTransaction(userID, transactionID string) error
+	DeleteTransaction(userID, transactionID string) (time.Time, error)
 	UpdateTransaction(userID, transactionID string, transactionInput bankingApp.Transaction) (bankingApp.Transaction, error)
 	GetTransactions(userID string, page, pageSize int) ([]bankingApp.Transaction, error)
 }
@@ -29,12 +31,16 @@ type Category interface {
 }
 
 type CachedStatistic interface {
+	CacheUserStatistic(userID, month string, stats *bankingApp.MonthlyStatistics) error
+	GetUserCachedStatistic(userID, month string) (*bankingApp.MonthlyStatistics, error)
+	DeleteCachedStatisticByMonth(userID, month string) error
+	InvalidateUserStatisticCache(userID string) error
 }
 
 type CachedCategory interface {
 	CacheUserCategories(userID string, categories []bankingApp.Category) error
 	GetUserCachedCategories(userID string) ([]bankingApp.Category, error)
-	InvalidateUserCache(userID string) error
+	InvalidateUserCategoryCache(userID string) error
 }
 
 type Service struct {
@@ -48,10 +54,11 @@ type Service struct {
 
 func NewService(repo *repository.Repository) *Service {
 	return &Service{
-		Authorization:  NewAuthService(repo.Authorization),
-		Transaction:    NewTransactionService(repo.Transaction),
-		Category:       NewCategoryService(repo.Category),
-		Statistic:      NewStatisticService(repo.Statistic),
-		CachedCategory: NewCachedCategory(repo.CachedCategory),
+		Authorization:   NewAuthService(repo.Authorization),
+		Transaction:     NewTransactionService(repo.Transaction),
+		Category:        NewCategoryService(repo.Category),
+		Statistic:       NewStatisticService(repo.Statistic),
+		CachedCategory:  NewCachedCategory(repo.CachedCategory),
+		CachedStatistic: NewStatisticCachedService(repo.CachedStatistic),
 	}
 }

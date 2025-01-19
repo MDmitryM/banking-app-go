@@ -67,7 +67,7 @@ func (r *TransactionMongo) GetTransactionByID(transactionID primitive.ObjectID) 
 	return transaction, nil
 }
 
-func (r *TransactionMongo) DeleteTransaction(userObjID, transactionObjID primitive.ObjectID) error {
+func (r *TransactionMongo) DeleteTransaction(userObjID, transactionObjID primitive.ObjectID) (time.Time, error) {
 	transactionCollection := r.db.database.Collection("transactions")
 
 	// Фильтр для удаления
@@ -76,18 +76,23 @@ func (r *TransactionMongo) DeleteTransaction(userObjID, transactionObjID primiti
 		"user_id": userObjID,
 	}
 
+	transactionToDelete, err := r.GetTransactionByID(transactionObjID)
+	if err != nil {
+		return time.Time{}, err
+	}
+
 	// Удаляем документ с фильтром
 	delResult, err := transactionCollection.DeleteOne(context.Background(), filter)
 	if err != nil {
-		return fmt.Errorf("error deleting transaction: %w", err)
+		return time.Time{}, fmt.Errorf("error deleting transaction: %w", err)
 	}
 
 	// Проверяем, был ли документ удалён
 	if delResult.DeletedCount == 0 {
-		return errors.New("transaction not found or not owned by the user")
+		return time.Time{}, errors.New("transaction not found or not owned by the user")
 	}
 
-	return nil
+	return transactionToDelete.Date, nil
 }
 
 func (r *TransactionMongo) UpdateTransaction(transactionObjID primitive.ObjectID, trModelToUpdate models.TransactionModel) (models.TransactionModel, error) {

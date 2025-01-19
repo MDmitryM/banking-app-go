@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"time"
 
 	bankingApp "github.com/MDmitryM/banking-app-go"
 	"github.com/MDmitryM/banking-app-go/models"
@@ -27,15 +28,15 @@ func (s *TransactionService) CreateTransaction(userID string, transactionInput b
 	return s.repo.CreateTransaction(trModel)
 }
 
-func (s *TransactionService) DeleteTransaction(userID, transactionID string) error {
+func (s *TransactionService) DeleteTransaction(userID, transactionID string) (time.Time, error) {
 	userObjID, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
-		return errors.New("invalid user id format")
+		return time.Time{}, errors.New("invalid user id format")
 	}
 
 	transactionObjID, err := primitive.ObjectIDFromHex(transactionID)
 	if err != nil {
-		return errors.New("invalid transaction id format")
+		return time.Time{}, errors.New("invalid transaction id format")
 	}
 
 	return s.repo.DeleteTransaction(userObjID, transactionObjID)

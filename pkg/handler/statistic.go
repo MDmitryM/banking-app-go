@@ -4,9 +4,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/MDmitryM/banking-app-go/pkg/repository"
 	"github.com/MDmitryM/banking-app-go/pkg/service"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+	"github.com/sirupsen/logrus"
 )
 
 // @Summary     Monthly Statistic by category
@@ -32,11 +34,24 @@ func (h *Handler) monthStatistic(ctx echo.Context) error {
 	}
 
 	claims := ctx.Get("user").(*jwt.Token).Claims.(*service.JwtBankingClaims)
-	userId := claims.UserId
+	userID := claims.UserId
 
-	stats, err := h.service.Statistic.GetMonthlyStatistic(userId, month)
+	cacheStats, err := h.service.CachedStatistic.GetUserCachedStatistic(userID, month)
+	if err == nil {
+		return ctx.JSON(http.StatusOK, cacheStats)
+	}
+	if err != repository.ErrCacheNotFound {
+		logrus.Print(err.Error())
+	}
+
+	stats, err := h.service.Statistic.GetMonthlyStatistic(userID, month)
 	if err != nil {
 		return SendJSONError(ctx, http.StatusInternalServerError, err.Error())
+	}
+
+	err = h.service.CachedStatistic.CacheUserStatistic(userID, month, stats)
+	if err != nil {
+		logrus.Error(err.Error())
 	}
 
 	return ctx.JSON(http.StatusOK, stats)

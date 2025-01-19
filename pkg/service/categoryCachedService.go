@@ -38,6 +38,6 @@ func (s *CategoryCachedService) CacheUserCategories(userID string, categories []
 	return s.repo.CacheUserCategories(userID, string(data))
 }
 
-func (s *CategoryCachedService) InvalidateUserCache(userID string) error {
+func (s *CategoryCachedService) InvalidateUserCategoryCache(userID string) error {
 	return s.repo.DeleteUserCachedCategories(userID)
 }
