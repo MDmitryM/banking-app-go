@@ -32,34 +32,61 @@ func main() {
 		logrus.Fatalf("Can't init configs, %s", err.Error())
 	}
 
-	if err := godotenv.Load(); err != nil {
-		logrus.Fatalf("cant load .env file, err - %s", err.Error())
+	var mongoCfg repository.MongoConfig
+	var redisCfg repository.RedisConfig
+
+	envState := os.Getenv("ENV")
+	logrus.Printf("ENV = %s", envState)
+	if envState != "production" {
+		if err := godotenv.Load(); err != nil {
+			logrus.Fatalf("cant load .env file, err - %s", err.Error())
+		}
+
+		mongodbUri := "mongodb://" + viper.GetString("mongo_dev_db.username") + ":" +
+			os.Getenv("MONGO_PASSWORD") + "@" +
+			viper.GetString("mongo_dev_db.host") + ":" +
+			viper.GetString("mongo_dev_db.port")
+
+		mongoCfg = repository.MongoConfig{
+			URI:      mongodbUri,
+			Database: viper.GetString("mongo_dev_db.database"),
+			Timeout:  viper.GetDuration("mongo_dev_db.timeout"),
+		}
+
+		redisCfg = repository.RedisConfig{
+			Host:     viper.GetString("redis_dev_db.host"),
+			Port:     viper.GetString("redis_dev_db.port"),
+			Password: os.Getenv("REDIS_PASSWORD"),
+			DB:       viper.GetInt("redis_dev_db.DB"),
+		}
+	} else {
+		fmt.Printf("jwt token = %s", os.Getenv("JWT_SECRET"))
+		mongodbUri := "mongodb://" + viper.GetString("mongo_db.username") + ":" +
+			os.Getenv("MONGO_PASSWORD") + "@" +
+			viper.GetString("mongo_db.host") + ":" +
+			viper.GetString("mongo_db.port")
+
+		mongoCfg = repository.MongoConfig{
+			URI:      mongodbUri,
+			Database: viper.GetString("mongo_db.database"),
+			Timeout:  viper.GetDuration("mongo_db.timeout"),
+		}
+
+		redisCfg = repository.RedisConfig{
+			Host:     viper.GetString("redis_db.host"),
+			Port:     viper.GetString("redis_db.port"),
+			Password: os.Getenv("REDIS_PASSWORD"),
+			DB:       viper.GetInt("redis_db.DB"),
+		}
 	}
 
-	mongodbUri := "mongodb://" + viper.GetString("dev_db.username") + ":" +
-		os.Getenv("MONGO_PASSWORD") + "@" +
-		viper.GetString("dev_db.host") + ":" +
-		viper.GetString("dev_db.port")
-
-	mongoConfig := repository.MongoConfig{
-		URI:      mongodbUri,
-		Database: viper.GetString("dev_db.database"),
-		Timeout:  viper.GetDuration("dev_db.timeout"),
-	}
-
-	db, err := repository.NewMongoDB(mongoConfig)
+	db, err := repository.NewMongoDB(mongoCfg)
 	if err != nil {
 		logrus.Fatalf("error while creating DB, err - %s", err.Error())
 	}
 	defer db.Close(context.Background())
 
-	redisConf := repository.RedisConfig{
-		Host:     viper.GetString("redis_dev_db.host"),
-		Port:     viper.GetString("redis_dev_db.port"),
-		Password: os.Getenv("REDIS_PASSWORD"),
-		DB:       viper.GetInt("redis_dev_db.DB"),
-	}
-	redisDb, err := repository.NewRedisClient(redisConf)
+	redisDb, err := repository.NewRedisClient(redisCfg)
 	if err != nil {
 		logrus.Fatalf("error while creating redis DB err - %s", err.Error())
 	}
