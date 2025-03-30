@@ -1,7 +1,6 @@
 services:
   budget_app:
-    build: ./
-    command: ./budget-app-go
+    image: mdmitrym/budget-app-go:latest
     env_file:
       - .env
     environment:
