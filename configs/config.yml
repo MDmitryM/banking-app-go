@@ -4,8 +4,6 @@ port: "8080"
 mongo_db:
   host: "mongodb"
   port: "27017"
-  username: "mongo"
-  database: "budget_app"
   timeout: 10s
 redis_db:
   host: "redis"
@@ -15,8 +13,6 @@ redis_db:
 mongo_dev_db:
   host: "localhost"
   port: "27017"
-  username: "mongo"
-  database: "budget_app"
   timeout: 10s
 #redis db config
 redis_dev_db:

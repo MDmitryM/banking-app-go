@@ -42,14 +42,14 @@ func main() {
 			logrus.Fatalf("cant load .env file, err - %s", err.Error())
 		}
 
-		mongodbUri := "mongodb://" + viper.GetString("mongo_dev_db.username") + ":" +
+		mongodbUri := "mongodb://" + os.Getenv("MONGO_USER") + ":" +
 			os.Getenv("MONGO_PASSWORD") + "@" +
 			viper.GetString("mongo_dev_db.host") + ":" +
 			viper.GetString("mongo_dev_db.port")
 
 		mongoCfg = repository.MongoConfig{
 			URI:      mongodbUri,
-			Database: viper.GetString("mongo_dev_db.database"),
+			Database: os.Getenv("MONGO_DB_NAME"),
 			Timeout:  viper.GetDuration("mongo_dev_db.timeout"),
 		}
 
@@ -60,8 +60,7 @@ func main() {
 			DB:       viper.GetInt("redis_dev_db.DB"),
 		}
 	} else {
-		fmt.Printf("jwt token = %s", os.Getenv("JWT_SECRET"))
-		mongodbUri := "mongodb://" + viper.GetString("mongo_db.username") + ":" +
+		mongodbUri := "mongodb://" + os.Getenv("MONGO_USER") + ":" +
 			os.Getenv("MONGO_PASSWORD") + "@" +
 			viper.GetString("mongo_db.host") + ":" +
 			viper.GetString("mongo_db.port")
