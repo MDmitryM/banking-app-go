@@ -67,7 +67,7 @@ func main() {
 
 		mongoCfg = repository.MongoConfig{
 			URI:      mongodbUri,
-			Database: viper.GetString("mongo_db.database"),
+			Database: viper.GetString("MONGO_DB_NAME"),
 			Timeout:  viper.GetDuration("mongo_db.timeout"),
 		}
 
