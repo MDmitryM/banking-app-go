@@ -69,7 +69,7 @@ ENV=production
 
 3. Запустите приложение:
 ```bash
-docker-compose up --d
+docker-compose up -d
 ```
 
 Приложение будет доступно по адресу `http://localhost:8080`
